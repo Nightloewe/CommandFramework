@@ -1,4 +1,4 @@
-package dev.teamnight.nightbot.command.annotations;
+package dev.teamnight.command.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 import net.dv8tion.jda.api.Permission;
 
 /**
- * Provides annotation to require a specific discord permission to use this command
+ * Provides annotation to require a discord specific permission to do something as bot
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface RequireUserPermission {
+public @interface RequireBotSelfPermission {
 
 	public Permission[] guildPermission() default {};
 	

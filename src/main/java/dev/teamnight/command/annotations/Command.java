@@ -1,4 +1,4 @@
-package dev.teamnight.nightbot.command.annotations;
+package dev.teamnight.command.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

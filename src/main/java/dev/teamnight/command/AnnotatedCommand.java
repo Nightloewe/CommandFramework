@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import dev.teamnight.nightbot.command.annotations.RequireCommandPermission;
+import dev.teamnight.command.annotations.RequireBotSelfPermission;
+import dev.teamnight.command.annotations.RequireCommandPermission;
+import dev.teamnight.command.annotations.RequireGuild;
+import dev.teamnight.command.annotations.RequireOwner;
+import dev.teamnight.command.annotations.RequireUserPermission;
 import dev.teamnight.command.utils.PermissionUtil;
-import dev.teamnight.nightbot.command.annotations.RequireBotSelfPermission;
-import dev.teamnight.nightbot.command.annotations.RequireGuild;
-import dev.teamnight.nightbot.command.annotations.RequireOwner;
-import dev.teamnight.nightbot.command.annotations.RequireUserPermission;
 
 public class AnnotatedCommand implements ICommand {
 
