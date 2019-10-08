@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
+import dev.teamnight.command.standard.JDAListener;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class CommandFramework {
@@ -58,6 +60,8 @@ public class CommandFramework {
 		this.allowDM = allowDM;
 		this.allowMentionCmd = allowMention;
 		this.allowBots = allowBots;
+		
+		this.shardManager.addEventListener(new JDAListener(this));
 	}
 	
 	/**

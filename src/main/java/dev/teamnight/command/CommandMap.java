@@ -65,7 +65,7 @@ public class CommandMap implements ICommandMap {
 				
 				ctx.getCmdFramework().getListeners().forEach((ICommandListener) -> {
 					new Thread(() -> {
-						ICommandListener.onCommand(ctx);
+						ICommandListener.onCommand(ctx, success);
 					}).start();
 				});
 				ctx.getCmdFramework().logger().info("Executed Command (t: " + usedTime + "ms) " + ctx.getCommand() 

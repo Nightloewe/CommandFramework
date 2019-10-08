@@ -3,11 +3,10 @@ package dev.teamnight.command.utils;
 import java.util.LinkedList;
 import java.util.List;
 
-import dev.teamnight.command.AnnotatedCommand;
 import dev.teamnight.command.BotPermission;
-import dev.teamnight.command.CommandFramework;
 import dev.teamnight.command.ICommand;
 import dev.teamnight.command.IContext;
+import dev.teamnight.command.standard.AnnotatedCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;

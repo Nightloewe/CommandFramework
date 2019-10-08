@@ -1,9 +1,13 @@
-package dev.teamnight.command;
+package dev.teamnight.command.standard;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import dev.teamnight.command.BotPermission;
+import dev.teamnight.command.ICommand;
+import dev.teamnight.command.IContext;
+import dev.teamnight.command.IModule;
 import dev.teamnight.command.BotPermission.PermissionValue;
 import dev.teamnight.command.annotations.RequireBotSelfPermission;
 import dev.teamnight.command.annotations.RequireCommandPermission;
