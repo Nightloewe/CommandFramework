@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import dev.teamnight.command.utils.BotEmbedBuilder;
+import dev.teamnight.command.utils.PermissionUtil;
+
 public class CommandMap implements ICommandMap {
 
 	private LinkedHashMap<String, ICommand> commands = new LinkedHashMap<String, ICommand>();
@@ -38,20 +41,20 @@ public class CommandMap implements ICommandMap {
 	}
 
 	@Override
-	public boolean dispatchCommand(CommandInfo info) {
+	public boolean dispatchCommand(IContext ctx) {
 		ICommand command = null;
 		
 		for(String name : this.commands.keySet()) {
-			if(name.equalsIgnoreCase(info.getCommand())) {
+			if(name.equalsIgnoreCase(ctx.getCommand())) {
 				command = this.commands.get(name);
 				
-				if(PermissionUtil.isBlacklisted(info.getAuthor())) {
-					new BotEmbedBuilder().setDescription(info.getAuthor().getAsMention() + " You are blacklisted by the bot. Please contact the bot owner for more information.").withErrorColor().sendMessage(info.getChannel());
+				if(PermissionUtil.isBlacklisted(ctx, false)) {
+					new BotEmbedBuilder().setDescription(ctx.getLocalizedString("USER_BLACKLISTED", ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 					return true;
 				}
 				
 				long preTime = System.currentTimeMillis();
-				boolean success = command.execute(info);
+				boolean success = command.execute(ctx);
 				long usedTime = System.currentTimeMillis() - preTime;
 				
 //				if(!success) {
@@ -60,24 +63,21 @@ public class CommandMap implements ICommandMap {
 //					info.getChannel().sendMessage(embed).queue();
 //				}
 				
-				if(info.getGuild().isPresent())
-					NightBot.get().getLogManager().logToChannel(info.getGuild().get(), EventType.COMMAND_EXECUTION, 
-							new EmbedBuilder()
-							.setTitle(info.getLang().TITLE_COMMAND_EXECUTED.format())
-							.setDescription(info.getAuthor().getName() + "#" + info.getAuthor().getDiscriminator())
-							.addField(info.getLang().COMMAND.format(), info.getMessage().getContentRaw(), false)
-							.addField("Id", info.getMessage().getId(), false)
-							.build());
-				NightBot.logger().info("Executed Command (t: " + usedTime + "ms) " + info.getCommand() 
-					+ "\nAuthor: " + info.getAuthor().getName() + "#" + info.getAuthor().getDiscriminator()
-					+ "\nArgs: " + String.join(" ", info.getArguments())
-					+ (info.getGuild().isPresent() ? "\nGuild Id: " + info.getGuild().get().getId() : ""));
+				ctx.getCmdFramework().getListeners().forEach((ICommandListener) -> {
+					new Thread(() -> {
+						ICommandListener.onCommand(ctx);
+					}).start();
+				});
+				ctx.getCmdFramework().logger().info("Executed Command (t: " + usedTime + "ms) " + ctx.getCommand() 
+					+ "\nAuthor: " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
+					+ "\nArgs: " + String.join(" ", ctx.getArguments())
+					+ (ctx.getGuild().isPresent() ? "\nGuild Id: " + ctx.getGuild().get().getId() : ""));
 				return true;
 			}
 		}
-		NightBot.logger().info("Command " + info .getCommand() + " is not found!"
-				+ "\nAuthor: " + info.getAuthor().getName() + "#" + info.getAuthor().getDiscriminator()
-				+ (info.getGuild().isPresent() ? "\nGuild Id: " + info.getGuild().get().getId() : ""));
+		ctx.getCmdFramework().logger().info("Command " + ctx.getCommand() + " is not found!"
+				+ "\nAuthor: " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
+				+ (ctx.getGuild().isPresent() ? "\nGuild Id: " + ctx.getGuild().get().getId() : ""));
 		return false;
 	}
 

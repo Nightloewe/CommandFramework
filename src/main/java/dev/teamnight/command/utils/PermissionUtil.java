@@ -1,11 +1,13 @@
 package dev.teamnight.command.utils;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import dev.teamnight.command.AnnotatedCommand;
 import dev.teamnight.command.BotPermission;
-import dev.teamnight.command.CommandInfo;
+import dev.teamnight.command.CommandFramework;
 import dev.teamnight.command.ICommand;
+import dev.teamnight.command.IContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -101,11 +103,11 @@ public class PermissionUtil {
 	 * 10: Check guild command role textchannel perm (overwritable)
 	 * 11: Check guild user perm (not-overwritable) (IGNORING - BREAKS LOOP)
 	 */
-	public static BotPermission.PermissionValue canExecute(CommandInfo info) {
+	public static BotPermission.PermissionValue canExecute(IContext ctx) {
 		BotPermission.PermissionValue val = BotPermission.PermissionValue.UNSET;
 		
 		String module = null;
-		ICommand cmd = NightBot.get().getCommandMap().getCommand(info.getCommand());
+		ICommand cmd = ctx.getCmdFramework().getCommandMap().getCommand(ctx.getCommand());
 		
 		if(cmd instanceof AnnotatedCommand) {
 			AnnotatedCommand annotatedCommand = (AnnotatedCommand) cmd;
@@ -113,7 +115,7 @@ public class PermissionUtil {
 			module = annotatedCommand.getModule();
 		}
 		
-		LinkedList<BotPermission> globalPermissions = NightBot.get().getGlobalPermissions();
+		List<BotPermission> globalPermissions = ctx.getCmdFramework().getPermProvider().getGlobalPermissions();
 		
 		for(BotPermission perm : globalPermissions) {
 			if(perm.getModule() != null) {
@@ -127,7 +129,7 @@ public class PermissionUtil {
 			}
 			
 			if(perm.getCommand() != null) {
-				if(perm.getCommand().equalsIgnoreCase(info.getCommand())) {
+				if(perm.getCommand().equalsIgnoreCase(ctx.getCommand())) {
 					if(perm.getAction().equalsIgnoreCase("enable")) {
 						val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_GLOBAL_ALLOWED");
 					} else {
@@ -137,22 +139,21 @@ public class PermissionUtil {
 			}
 		}
 		
-		if(info.getGuild().isPresent()) {
-			ConnectedGuild guild = NightBot.get().getConnectedGuild(info.getGuild().get());
+		if(ctx.getGuild().isPresent()) {
 			
-			if(info.getGuildMember().get().isOwner())
+			if(ctx.getGuildMember().get().isOwner())
 				return BotPermission.PermissionValue.ALLOW.setReason("GUILD_OWNER");
 			
 			BotPermission acquiredPermission = null;
 			BotPermission.PermissionValue beforeVal = null;
 			
-			for(BotPermission permission : guild.getPermissions()) {
+			for(BotPermission permission : ctx.getCmdFramework().getPermProvider().getGuildPermissions(ctx.getGuild().get())) {
 				beforeVal = val;
 				if(permission.getChannelId() != 0L) {
-					if(info.getChannel().getIdLong() != permission.getChannelId()) continue;
+					if(ctx.getChannel().getIdLong() != permission.getChannelId()) continue;
 					if(permission.getRoleId() != 0L) {
 						//Permission should not apply if user does not have role
-						if(!PermissionUtil.hasRole(permission.getRoleId(), info.getGuildMember().get())) continue;
+						if(!PermissionUtil.hasRole(permission.getRoleId(), ctx.getGuildMember().get())) continue;
 						
 						if(permission.getModule() != null && module != null) {
 							if(val.getReason().startsWith("COMMAND_TEXTCHANNEL_ROLE_") || !module.equalsIgnoreCase(permission.getModule()))
@@ -164,7 +165,7 @@ public class PermissionUtil {
 								val = BotPermission.PermissionValue.DENY.setReason("MODULE_TEXTCHANNEL_ROLE_DENIED");
 							}
 						} else {
-							if(!info.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
+							if(!ctx.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
 							
 							if(permission.getAction().equalsIgnoreCase("allow")) {
 								val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_TEXTCHANNEL_ROLE_ALLOWED");
@@ -174,7 +175,7 @@ public class PermissionUtil {
 						}
 						
 						//Permission should not apply if role before is higher and level is not equal
-						if(acquiredPermission != null && PermissionUtil.isSameLevel(val, beforeVal) && PermissionUtil.isRoleHigher(guild.getGuild(), acquiredPermission.getRoleId(), permission.getRoleId())) {
+						if(acquiredPermission != null && PermissionUtil.isSameLevel(val, beforeVal) && PermissionUtil.isRoleHigher(ctx.getGuild().get(), acquiredPermission.getRoleId(), permission.getRoleId())) {
 							val = beforeVal;
 							continue;
 						}
@@ -196,7 +197,7 @@ public class PermissionUtil {
 								val = BotPermission.PermissionValue.DENY.setReason("MODULE_TEXTCHANNEL_ROLE_DENIED");
 							}
 						} else {
-							if(!info.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
+							if(!ctx.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
 							
 							if(permission.getAction().equalsIgnoreCase("allow")) {
 								val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_TEXTCHANNEL_ALLOWED");
@@ -207,7 +208,7 @@ public class PermissionUtil {
 					}
 				} else {
 					if(permission.getRoleId() != 0L) {
-						if(!PermissionUtil.hasRole(permission.getRoleId(), info.getGuildMember().get())) continue;
+						if(!PermissionUtil.hasRole(permission.getRoleId(), ctx.getGuildMember().get())) continue;
 						
 						if(val.getReason().startsWith("MODULE_TEXTCHANNEL_ROLE_") || val.getReason().startsWith("COMMAND_TEXTCHANNEL_ROLE_"))
 							continue;
@@ -224,7 +225,7 @@ public class PermissionUtil {
 								val = BotPermission.PermissionValue.DENY.setReason("MODULE_ROLE_DENIED");
 							}
 						} else {
-							if(!info.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
+							if(!ctx.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
 							
 							if(permission.getAction().equalsIgnoreCase("allow")) {
 								val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_ROLE_ALLOWED");
@@ -234,12 +235,12 @@ public class PermissionUtil {
 						}
 						
 						//Permission should not apply if role before is higher and level is not equal
-						if(acquiredPermission != null && PermissionUtil.isSameLevel(val, beforeVal) && PermissionUtil.isRoleHigher(guild.getGuild(), acquiredPermission.getRoleId(), permission.getRoleId())) {
+						if(acquiredPermission != null && PermissionUtil.isSameLevel(val, beforeVal) && PermissionUtil.isRoleHigher(ctx.getGuild().get(), acquiredPermission.getRoleId(), permission.getRoleId())) {
 							val = beforeVal;
 							continue;
 						}
 					} else if(permission.getUserId() != 0L) {
-						if(!info.getCommand().equalsIgnoreCase(permission.getCommand()) || info.getAuthor().getIdLong() != permission.getUserId()) continue;
+						if(!ctx.getCommand().equalsIgnoreCase(permission.getCommand()) || ctx.getAuthor().getIdLong() != permission.getUserId()) continue;
 						
 						if(permission.getAction().equalsIgnoreCase("allow")) {
 							val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_USER_ALLOWED");
@@ -262,7 +263,7 @@ public class PermissionUtil {
 								val = BotPermission.PermissionValue.DENY.setReason("MODULE_GUILD_DENIED");
 							}
 						} else {
-							if(!info.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
+							if(!ctx.getCommand().equalsIgnoreCase(permission.getCommand())) continue;
 							
 							if(permission.getAction().equalsIgnoreCase("allow")) {
 								val = BotPermission.PermissionValue.ALLOW.setReason("COMMAND_GUILD_ALLOWED");
@@ -278,11 +279,7 @@ public class PermissionUtil {
 		return val;
 	}
 	
-	public static boolean isBlacklisted(Guild guild) {
-		return false;
-	}
-	
-	public static boolean isBlacklisted(User user) {
+	public static boolean isBlacklisted(IContext ctx, boolean guild) {
 		return false;
 	}
 	
@@ -306,10 +303,7 @@ public class PermissionUtil {
 		return false;
 	}
 	
-	public static boolean isBotOwner(User user) {
-		if(NightBot.get().getConfig().getOwnerIds().contains(user.getIdLong())) {
-			return true;
-		}
-		return false;
+	public static boolean isBotOwner(IContext ctx, User user) {
+		return ctx.getCmdFramework().isOwner(user);
 	}
 }

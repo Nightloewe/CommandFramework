@@ -4,12 +4,17 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import dev.teamnight.command.BotPermission.PermissionValue;
 import dev.teamnight.command.annotations.RequireBotSelfPermission;
 import dev.teamnight.command.annotations.RequireCommandPermission;
 import dev.teamnight.command.annotations.RequireGuild;
 import dev.teamnight.command.annotations.RequireOwner;
 import dev.teamnight.command.annotations.RequireUserPermission;
+import dev.teamnight.command.utils.BotEmbedBuilder;
 import dev.teamnight.command.utils.PermissionUtil;
+
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AnnotatedCommand implements ICommand {
 
@@ -66,18 +71,16 @@ public class AnnotatedCommand implements ICommand {
 	}
 
 	@Override
-	public boolean execute(CommandInfo commandInfo) {
-		BotPermission.PermissionValue botPermission = PermissionUtil.canExecute(commandInfo);
-		
-		NightBot.logger().warn(botPermission.name() + ":" + botPermission.getReason());
+	public boolean execute(IContext ctx) {
+		BotPermission.PermissionValue botPermission = PermissionUtil.canExecute(ctx);
 		
 		/**
 		 * Requires Bot Owner
 		 */
 		if(method.getAnnotation(RequireOwner.class) != null) {
-			if(!NightBot.get().getConfig().getOwnerIds().contains(commandInfo.getAuthor().getIdLong())) {
-				commandInfo.getChannel().sendMessage(
-						new EmbedBuilder().setDescription(commandInfo.getLang().NEED_OWNER.format(commandInfo.getAuthor().getAsMention())).setColor(Color.RED).build()
+			if(!PermissionUtil.isBotOwner(ctx, ctx.getAuthor())) {
+				ctx.getChannel().sendMessage(
+						new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_OWNER", ctx.getAuthor().getAsMention())).setColor(Color.RED).build()
 						).queue();
 				return true;
 			}
@@ -89,21 +92,21 @@ public class AnnotatedCommand implements ICommand {
 		if(method.getAnnotation(RequireBotSelfPermission.class) != null) {
 			RequireBotSelfPermission annotation = method.getAnnotation(RequireBotSelfPermission.class);
 			
-			if(commandInfo.getGuild().isPresent()) {
+			if(ctx.getGuild().isPresent()) {
 				for(Permission permission : annotation.guildPermission()) {
-					if(!commandInfo.getGuild().get().getSelfMember().hasPermission(permission)) {
-						commandInfo.getChannel().sendMessage(
-								new EmbedBuilder().setDescription(commandInfo.getLang().BOT_NEED_SERVER_PERMISSION.format(commandInfo.getAuthor().getAsMention(), permission.getName())).setColor(Color.RED).build()
+					if(!ctx.getGuild().get().getSelfMember().hasPermission(permission)) {
+						ctx.getChannel().sendMessage(
+								new BotEmbedBuilder().setDescription(ctx.getLocalizedString("BOT_NEED_SERVER_PERMISSION", ctx.getAuthor().getAsMention(), permission.getName())).setColor(Color.RED).build()
 								).queue();
 						return true;
 					}
 				}
 				
 				for(Permission permission : annotation.channelPermission()) {
-					TextChannel textChannel = (TextChannel) commandInfo.getChannel();
-					if(!commandInfo.getGuild().get().getSelfMember().hasPermission(textChannel, permission)) {
-						commandInfo.getChannel().sendMessage(
-								new EmbedBuilder().setDescription(commandInfo.getLang().BOT_NEED_CHANNEL_PERMISSION.format(commandInfo.getAuthor().getAsMention(), permission.getName(), textChannel.getAsMention())).setColor(Color.RED).build()
+					TextChannel textChannel = (TextChannel) ctx.getChannel();
+					if(!ctx.getGuild().get().getSelfMember().hasPermission(textChannel, permission)) {
+						ctx.getChannel().sendMessage(
+								new BotEmbedBuilder().setDescription(ctx.getLocalizedString("BOT_NEED_CHANNEL_PERMISSION", ctx.getAuthor().getAsMention(), permission.getName(), textChannel.getAsMention())).setColor(Color.RED).build()
 								).queue();
 						return true;
 					}
@@ -114,21 +117,21 @@ public class AnnotatedCommand implements ICommand {
 		if(method.getAnnotation(RequireUserPermission.class) != null && botPermission == PermissionValue.UNSET) {
 			RequireUserPermission annotation = method.getAnnotation(RequireUserPermission.class);
 			
-			if(commandInfo.getGuild().isPresent()) {
+			if(ctx.getGuild().isPresent()) {
 				for(Permission permission : annotation.guildPermission()) {
-					if(!commandInfo.getGuildMember().get().hasPermission(permission)) {
-						commandInfo.getChannel().sendMessage(
-								new EmbedBuilder().setDescription(commandInfo.getLang().NEED_SERVER_PERMISSION.format(commandInfo.getAuthor().getAsMention(), permission.getName())).setColor(Color.RED).build()
+					if(!ctx.getGuildMember().get().hasPermission(permission)) {
+						ctx.getChannel().sendMessage(
+								new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_SERVER_PERMISSION", ctx.getAuthor().getAsMention(), permission.getName())).setColor(Color.RED).build()
 								).queue();
 						return true;
 					}
 				}
 				
 				for(Permission permission : annotation.channelPermission()) {
-					TextChannel textChannel = (TextChannel) commandInfo.getChannel();
-					if(!commandInfo.getGuildMember().get().hasPermission(textChannel, permission)) {
-						commandInfo.getChannel().sendMessage(
-								new EmbedBuilder().setDescription(commandInfo.getLang().NEED_CHANNEL_PERMISSION.format(commandInfo.getAuthor().getAsMention(), permission.getName(), textChannel.getAsMention())).setColor(Color.RED).build()
+					TextChannel textChannel = (TextChannel) ctx.getChannel();
+					if(!ctx.getGuildMember().get().hasPermission(textChannel, permission)) {
+						ctx.getChannel().sendMessage(
+								new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_CHANNEL_PERMISSION", ctx.getAuthor().getAsMention(), permission.getName(), textChannel.getAsMention())).setColor(Color.RED).build()
 								).queue();
 						return true;
 					}
@@ -137,26 +140,28 @@ public class AnnotatedCommand implements ICommand {
 		}
 		
 		if(method.getAnnotation(RequireGuild.class) != null) {
-			if(!commandInfo.getGuild().isPresent()) {
-				commandInfo.getChannel().sendMessage(
-						new EmbedBuilder().setDescription(commandInfo.getLang().REQUIRE_GUILD.format(commandInfo.getAuthor().getAsMention())).setColor(Color.RED).build()
+			if(!ctx.getGuild().isPresent()) {
+				ctx.getChannel().sendMessage(
+						new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_GUILD", ctx.getAuthor().getAsMention())).setColor(Color.RED).build()
 						).queue();
 				return true;
 			}
 		}
 		
+		//TODO: needs to be replaced by LocalizedString
 		if(botPermission == PermissionValue.DENY && method.getAnnotation(RequireOwner.class) == null) {
-			new BotEmbedBuilder().setDescription(commandInfo.getAuthor().getAsMention() + " You can't execute this command because of presets by command permissions. `" + botPermission.getReason() + "`").withErrorColor().sendMessage(commandInfo.getChannel());
+			new BotEmbedBuilder().setDescription(ctx.getAuthor().getAsMention() + " You can't execute this command because of presets by command permissions. `" + botPermission.getReason() + "`").withErrorColor().sendMessage(ctx.getChannel());
 			return true;
 		}
 		
+		//TODO: needs to be replaced by LocalizedString
 		if(method.getAnnotation(RequireCommandPermission.class) != null && botPermission != PermissionValue.ALLOW) {
-			new BotEmbedBuilder().setDescription(commandInfo.getAuthor().getAsMention() + " You can't execute this command because you need a permission set to use this command.").withErrorColor().sendMessage(commandInfo.getChannel());
+			new BotEmbedBuilder().setDescription(ctx.getAuthor().getAsMention() + " You can't execute this command because you need a permission set to use this command.").withErrorColor().sendMessage(ctx.getChannel());
 			return true;
 		}
 		
 		try {
-			boolean returnValue = (boolean) this.method.invoke(this.invokeObject, commandInfo);
+			boolean returnValue = (boolean) this.method.invoke(this.invokeObject, ctx);
 			
 			return returnValue;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

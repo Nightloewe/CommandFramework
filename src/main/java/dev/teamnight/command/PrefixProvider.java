@@ -1,10 +1,18 @@
 package dev.teamnight.command;
 
-import net.dv8tion.jda.api.entities.Guild;
-
+/**
+ * An interface to provide the Command Framework with a prefix for specified contexts.
+ * @author Nightloewe
+ *
+ */
 public interface PrefixProvider {
 
-	//TODO: Change to CommandArgs or Context
-	public String providePrefix(Guild guild);
+	/**
+	 * Provides a prefix, will be called the Framework when checking if a message is a command.
+	 * @param Command Context created by the Framework
+	 * @warning Command Context may not have implemented the mehtods getCommand, getArguments
+	 * @return the Prefix
+	 */
+	public String providePrefix(IContext ctx);
 	
 }

@@ -5,9 +5,15 @@ import java.util.Optional;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 
+/**
+ * An interface representing the Context where a command is executed.
+ * @author Jonas
+ *
+ */
 public interface IContext {
-
 	public CommandFramework getCmdFramework();
 	
 	public Optional<Guild> getGuild();
@@ -16,9 +22,15 @@ public interface IContext {
 	
 	public Message getMessage();
 	
+	public User getAuthor();
+	
+	public MessageChannel getChannel();
+	
 	public String getCommand();
 	
 	public String[] getArguments();
 	
 	public String getPrefix();
+	
+	public String getLocalizedString(String key, Object...replacements);
 }

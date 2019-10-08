@@ -23,9 +23,9 @@ public interface ICommand {
 	public String[] getAliases();
 	
 	/**
-	 * @param commandInfo
+	 * @param ctx
 	 * @return if success
 	 */
-	public boolean execute(CommandInfo commandInfo);
+	public boolean execute(IContext ctx);
 	
 }

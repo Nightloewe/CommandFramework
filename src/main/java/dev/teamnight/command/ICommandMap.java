@@ -32,5 +32,5 @@ public interface ICommandMap {
      * Executes a registered command
      * @param String
      */
-	public boolean dispatchCommand(CommandInfo info);
+	public boolean dispatchCommand(IContext ctx);
 }
