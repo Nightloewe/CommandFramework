@@ -2,8 +2,8 @@ package dev.teamnight.command;
 
 public abstract class Module implements IModule {
 	
-	public Module() {
-		//TODO: Automatically register commands
+	public Module(CommandFramework cf) {
+		cf.registerCommands(this);
 	}
 	
 	public abstract String getName();

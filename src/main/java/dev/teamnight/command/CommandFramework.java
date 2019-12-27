@@ -1,9 +1,12 @@
 package dev.teamnight.command;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
+import dev.teamnight.command.annotations.Command;
+import dev.teamnight.command.standard.AnnotatedCommand;
 import dev.teamnight.command.standard.JDAListener;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -161,5 +164,17 @@ public class CommandFramework {
 
 	public boolean isOwner(User user) {
 		return this.botOwners.contains(user);
+	}
+
+	public void registerCommands(Module module) {
+		for(Method method : module.getClass().getDeclaredMethods()) {
+			if(method.getAnnotation(Command.class) != null) {
+				Command commandAnnotation = method.getAnnotation(Command.class);
+				
+				AnnotatedCommand command = new AnnotatedCommand(commandAnnotation.name(), commandAnnotation.usage(), commandAnnotation.description(), commandAnnotation.aliases(), method, module);
+				
+				this.getCommandMap().register(command);
+			}
+		}
 	}
 }
