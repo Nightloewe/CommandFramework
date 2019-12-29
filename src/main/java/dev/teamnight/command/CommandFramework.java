@@ -15,26 +15,26 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class CommandFramework {
 
-	private Logger logger;
+	private Logger logger; //Implemented
 	
-	private ICommandMap map;
+	private ICommandMap map; //Implemented
 	
-	private List<ICommandListener> listeners;
+	private List<ICommandListener> listeners; //Implemented
 	
-	private List<Guild> blockedGuilds;
-	private List<User> blockedUsers;
+	private List<Guild> blockedGuilds; //Implemented
+	private List<User> blockedUsers; //Implemented
 	
-	private List<User> botOwners;
+	private List<User> botOwners; //Implemented
 	
-	private PrefixProvider prefixProvider;
-	private LanguageProvider langProvier;
-	private PermissionProvider permProvider;
+	private PrefixProvider prefixProvider; //Implemented
+	private LanguageProvider langProvier; //Implemented
+	private PermissionProvider permProvider; //Implemented
 	
-	private ShardManager shardManager;
+	private ShardManager shardManager; //no need
 	
-	private boolean allowDM;
-	private boolean allowMentionCmd;
-	private boolean allowBots;
+	private boolean allowDM; //Implemented
+	private boolean allowMentionCmd; //Implemented
+	private boolean allowBots; //Implemented
 	
 	public static FrameworkBuilder newBuilder() {
 		return FrameworkBuilder.newBuilder();

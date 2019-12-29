@@ -278,7 +278,18 @@ public class PermissionUtil {
 		return val;
 	}
 	
+	public static boolean isBlacklisted(IContext ctx) {
+		return isBlacklisted(ctx, false);
+	}
+	
 	public static boolean isBlacklisted(IContext ctx, boolean guild) {
+		if(guild) {
+			if(ctx.getCmdFramework().getBlockedGuilds().contains(ctx.getGuild().get()))
+				return true;
+		} else {
+			if(ctx.getCmdFramework().getBlockedUsers().contains(ctx.getAuthor()))
+				return true;
+		}
 		return false;
 	}
 	
