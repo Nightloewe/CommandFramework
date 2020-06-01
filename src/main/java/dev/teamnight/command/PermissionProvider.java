@@ -17,13 +17,13 @@ public interface PermissionProvider {
 	 * The global-scope permissions of the Bot
 	 * @return List<BotPermission> the Permission List
 	 */
-	public List<BotPermission> getGlobalPermissions();
+	public List<IPermission> getGlobalPermissions();
 	
 	/**
 	 * The guild-specific permissions of the Bot
 	 * @param Guild the Guild
 	 * @return List<BotPermission> the Permission List
 	 */
-	public List<BotPermission> getGuildPermissions(Guild guild);
+	public List<IPermission> getGuildPermissions(Guild guild);
 	
 }

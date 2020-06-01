@@ -4,11 +4,10 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import dev.teamnight.command.BotPermission;
 import dev.teamnight.command.ICommand;
 import dev.teamnight.command.IContext;
 import dev.teamnight.command.IModule;
-import dev.teamnight.command.BotPermission.PermissionValue;
+import dev.teamnight.command.Tribool;
 import dev.teamnight.command.annotations.RequireBotSelfPermission;
 import dev.teamnight.command.annotations.RequireCommandPermission;
 import dev.teamnight.command.annotations.RequireGuild;
@@ -76,7 +75,7 @@ public class AnnotatedCommand implements ICommand {
 
 	@Override
 	public boolean execute(IContext ctx) {
-		BotPermission.PermissionValue botPermission = PermissionUtil.canExecute(ctx);
+		Tribool permissionResult = PermissionUtil.canExecute(ctx);
 		
 		/**
 		 * Requires Bot Owner
@@ -118,7 +117,7 @@ public class AnnotatedCommand implements ICommand {
 			}
 		}
 		
-		if(method.getAnnotation(RequireUserPermission.class) != null && botPermission == PermissionValue.UNSET) {
+		if(method.getAnnotation(RequireUserPermission.class) != null && permissionResult == Tribool.NEUTRAL) {
 			RequireUserPermission annotation = method.getAnnotation(RequireUserPermission.class);
 			
 			if(ctx.getGuild().isPresent()) {
@@ -153,14 +152,14 @@ public class AnnotatedCommand implements ICommand {
 		}
 		
 		//TODO: needs to be replaced by LocalizedString
-		if(botPermission == PermissionValue.DENY && method.getAnnotation(RequireOwner.class) == null) {
-			new BotEmbedBuilder().setDescription(ctx.getAuthor().getAsMention() + " You can't execute this command because of presets by command permissions. `" + botPermission.getReason() + "`").withErrorColor().sendMessage(ctx.getChannel());
+		if(permissionResult == Tribool.FALSE && method.getAnnotation(RequireOwner.class) == null) {
+			new BotEmbedBuilder().setDescription(ctx.getLocalizedString("PERMISSION_DENIED", ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 			return true;
 		}
 		
 		//TODO: needs to be replaced by LocalizedString
-		if(method.getAnnotation(RequireCommandPermission.class) != null && botPermission != PermissionValue.ALLOW) {
-			new BotEmbedBuilder().setDescription(ctx.getAuthor().getAsMention() + " You can't execute this command because you need a permission set to use this command.").withErrorColor().sendMessage(ctx.getChannel());
+		if(method.getAnnotation(RequireCommandPermission.class) != null && permissionResult != Tribool.TRUE) {
+			new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_PRESET_PERMISSION", ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 			return true;
 		}
 		
