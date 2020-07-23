@@ -57,27 +57,24 @@ public class CommandMap implements ICommandMap {
 				boolean success = command.execute(ctx);
 				long usedTime = System.currentTimeMillis() - preTime;
 				
-//				if(!success) {
-//					HelpModule helpModule = (HelpModule) NightBot.get().getModules().get("Help");
-//					MessageEmbed embed = helpModule.getCommandHelp(name, info.getGuild().get());
-//					info.getChannel().sendMessage(embed).queue();
-//				}
+				if(!success) {
+					ctx.getChannel().sendMessage(ctx.getCmdFramework().getHelpProvider().provideHelp(ctx)).queue();
+				}
 				
 				ctx.getCmdFramework().getListeners().forEach((ICommandListener) -> {
 					new Thread(() -> {
 						ICommandListener.onCommand(ctx, success);
 					}).start();
 				});
-				ctx.getCmdFramework().logger().info("Executed Command (t: " + usedTime + "ms) " + ctx.getCommand() 
-					+ "\nAuthor: " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
-					+ "\nArgs: " + String.join(" ", ctx.getArguments())
-					+ (ctx.getGuild().isPresent() ? "\nGuild Id: " + ctx.getGuild().get().getId() : ""));
+				ctx.getCmdFramework().logger().info("Executed Command (t: " + usedTime + "ms) \"" + ctx.getCommand() + " " + String.join(" ", ctx.getArguments())
+					+ "\" by " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
+					+ (ctx.getGuild().isPresent() ? " in Guild " + ctx.getGuild().get().getId() : ""));
 				return true;
 			}
 		}
-		ctx.getCmdFramework().logger().info("Command " + ctx.getCommand() + " is not found!"
-				+ "\nAuthor: " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
-				+ (ctx.getGuild().isPresent() ? "\nGuild Id: " + ctx.getGuild().get().getId() : ""));
+		ctx.getCmdFramework().logger().info("Command " + ctx.getCommand() + " was not found. Tried by "
+				+ " " + ctx.getAuthor().getName() + "#" + ctx.getAuthor().getDiscriminator()
+				+ (ctx.getGuild().isPresent() ? " in Guild " + ctx.getGuild().get().getId() : ""));
 		return false;
 	}
 

@@ -5,6 +5,7 @@ package dev.teamnight.command;
  * @author Nightloewe
  *
  */
+@FunctionalInterface
 public interface PrefixProvider {
 
 	/**

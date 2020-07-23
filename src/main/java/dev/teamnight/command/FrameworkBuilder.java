@@ -6,11 +6,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import dev.teamnight.command.standard.DefaultHelpProvider;
 import dev.teamnight.command.standard.DefaultLanguageProvider;
 import dev.teamnight.command.standard.DefaultPermissionProvider;
 import dev.teamnight.command.standard.DefaultPrefixProvider;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
+import dev.teamnight.command.utils.BotEmbedBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class FrameworkBuilder {
@@ -19,18 +19,20 @@ public class FrameworkBuilder {
 	private boolean allowMentionCmd = false;
 	private boolean allowBots = false;
 	
+	@SuppressWarnings("unused")
 	private char delimiter = ' ';
 	
-	private List<Guild> blockedGuilds = new ArrayList<Guild>();
-	private List<User> blockedUsers = new ArrayList<User>();
+	private List<Long> blockedGuilds = new ArrayList<Long>();
+	private List<Long> blockedUsers = new ArrayList<Long>();
 	
-	private List<User> owners = new ArrayList<User>();
+	private List<Long> owners = new ArrayList<Long>();
 	
 	private List<ICommandListener> listeners = new ArrayList<ICommandListener>();
 	
 	private PrefixProvider prefixProvider;
 	private LanguageProvider langProvider;
 	private PermissionProvider permProvider;
+	private HelpProvider helpProvider;
 	
 	private ICommandMap commandMap;
 	
@@ -42,31 +44,36 @@ public class FrameworkBuilder {
 		return new FrameworkBuilder();
 	}
 	
+	public FrameworkBuilder allowRainbowColors(boolean allowRainbowColors) {
+		BotEmbedBuilder.setRainbowColorsEnabled(true);
+		return this;
+	}
+	
 	public FrameworkBuilder allowDM(boolean allowDM) {
 		this.allowBots = allowDM;
 		return this;
 	}
 	
-	public FrameworkBuilder addBlockedGuilds(Guild...guilds) {
-		for(Guild g : guilds) {
+	public FrameworkBuilder addBlockedGuilds(long...guilds) {
+		for(long g : guilds) {
 			this.blockedGuilds.add(g);
 		}
 		return this;
 	}
 	
-	public FrameworkBuilder addBlockedGuilds(List<Guild> guilds) {
+	public FrameworkBuilder addBlockedGuilds(List<Long> guilds) {
 		this.blockedGuilds.addAll(guilds);
 		return this;
 	}
 	
-	public FrameworkBuilder addBlockedUsers(User...users) {
-		for(User u : users) {
+	public FrameworkBuilder addBlockedUsers(long...users) {
+		for(long u : users) {
 			this.blockedUsers.add(u);
 		}
 		return this;
 	}
 	
-	public FrameworkBuilder addBlockedUsers(List<User> users) {
+	public FrameworkBuilder addBlockedUsers(List<Long> users) {
 		this.blockedUsers.addAll(users);
 		return this;
 	}
@@ -87,6 +94,21 @@ public class FrameworkBuilder {
 
 	public FrameworkBuilder withPrefixProvider(PrefixProvider provider) {
 		this.prefixProvider = provider;
+		return this;
+	}
+	
+	public FrameworkBuilder withLanguageProvider(LanguageProvider provider) {
+		this.langProvider = provider;
+		return this;
+	}
+	
+	public FrameworkBuilder withPermissionProvider(PermissionProvider provider) {
+		this.permProvider = provider;
+		return this;
+	}
+	
+	public FrameworkBuilder withHelpProvider(HelpProvider provider) {
+		this.helpProvider = provider;
 		return this;
 	}
 	
@@ -111,14 +133,14 @@ public class FrameworkBuilder {
 		return this;
 	}
 	
-	public FrameworkBuilder addOwners(User...owners) {
-		for(User u : owners) {
+	public FrameworkBuilder addOwners(long...owners) {
+		for(long u : owners) {
 			this.owners.add(u);
 		}
 		return this;
 	}
 	
-	public FrameworkBuilder addOwners(List<User> owners) {
+	public FrameworkBuilder addOwners(List<Long> owners) {
 		this.owners.addAll(owners);
 		return this;
 	}
@@ -128,18 +150,8 @@ public class FrameworkBuilder {
 		return this;
 	}
 	
-	public FrameworkBuilder withLanguageProvider(LanguageProvider provider) {
-		this.langProvider = provider;
-		return this;
-	}
-	
 	public FrameworkBuilder withCustomCommandMap(ICommandMap map) {
 		this.commandMap = map;
-		return this;
-	}
-	
-	public FrameworkBuilder withPermissionProvider(PermissionProvider provider) {
-		this.permProvider = provider;
 		return this;
 	}
 	
@@ -163,6 +175,9 @@ public class FrameworkBuilder {
 		if(this.permProvider == null)
 			this.permProvider = new DefaultPermissionProvider();
 		
+		if(this.helpProvider == null)
+			this.helpProvider = new DefaultHelpProvider();
+		
 		if(this.commandMap == null)
 			this.commandMap = new CommandMap();
 		
@@ -172,6 +187,6 @@ public class FrameworkBuilder {
 		if(this.shardManager == null)
 			throw new IllegalArgumentException("shardManager can not be null; It must be provided within the Builder");
 		
-		return new CommandFramework(logger, shardManager, commandMap, owners, blockedUsers, blockedGuilds, listeners, prefixProvider, langProvider, permProvider, allowDM, allowMentionCmd, allowBots);
+		return new CommandFramework(logger, shardManager, commandMap, owners, blockedUsers, blockedGuilds, listeners, prefixProvider, langProvider, permProvider, helpProvider, allowDM, allowMentionCmd, allowBots);
 	}
 }

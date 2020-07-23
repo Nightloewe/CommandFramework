@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
  * @author Jonas
  *
  */
+@FunctionalInterface
 public interface LanguageProvider {
 
 	/**

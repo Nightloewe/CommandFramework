@@ -8,7 +8,6 @@ import dev.teamnight.command.IContext;
 import dev.teamnight.command.IPermission;
 import dev.teamnight.command.Tribool;
 import dev.teamnight.command.standard.AnnotatedCommand;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
@@ -122,6 +121,7 @@ public class PermissionUtil {
 		return levelBuilder.toString();
 	}
 	
+	@SuppressWarnings("unused")
 	private static boolean isSameLevel(IPermission permission, IPermission other) {
 		int firstPos = 0;
 		int secondPos = -1;
@@ -226,10 +226,10 @@ public class PermissionUtil {
 	
 	public static boolean isBlacklisted(IContext ctx, boolean guild) {
 		if(guild) {
-			if(ctx.getCmdFramework().getBlockedGuilds().contains(ctx.getGuild().get()))
+			if(ctx.getCmdFramework().getBlockedGuilds().contains(ctx.getGuild().get().getIdLong()))
 				return true;
 		} else {
-			if(ctx.getCmdFramework().getBlockedUsers().contains(ctx.getAuthor()))
+			if(ctx.getCmdFramework().getBlockedUsers().contains(ctx.getAuthor().getIdLong()))
 				return true;
 		}
 		return false;

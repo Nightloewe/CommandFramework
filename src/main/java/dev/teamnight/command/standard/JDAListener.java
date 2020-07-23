@@ -3,8 +3,11 @@ package dev.teamnight.command.standard;
 import dev.teamnight.command.CommandFramework;
 import dev.teamnight.command.Context;
 import dev.teamnight.command.IContext;
+import dev.teamnight.command.PrefixContext;
 import dev.teamnight.command.utils.BotEmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,8 +21,17 @@ public class JDAListener extends ListenerAdapter {
 	}
 	
 	@Override
+	public void onReady(ReadyEvent event) {
+		for(long id : cf.getBotOwners()) {
+			User user = event.getJDA().retrieveUserById(id).complete();
+			
+			cf.getBotOwnerList().add(user);
+		}
+	}
+	
+	@Override
 	public void onGuildJoin(GuildJoinEvent event) {
-		if(this.cf.getBlockedGuilds().contains(event.getGuild())) {
+		if(this.cf.getBlockedGuilds().contains(event.getGuild().getIdLong())) {
 			event.getGuild().getOwner().getUser().openPrivateChannel().queue((ch) -> {
 				new BotEmbedBuilder().setDescription(this.cf.getLangProvier().provideString(event.getGuild(), "GUILD_BLACKLISTED")).withErrorColor().sendMessage(ch);
 				event.getGuild().leave().queue();
@@ -44,12 +56,13 @@ public class JDAListener extends ListenerAdapter {
 			return;
 		}
 		
-		IContext ctx = new Context(this.cf, e.getMessage());
+		IContext ctx = new PrefixContext(this.cf, e.getMessage());
 		
 		String commandPrefix = this.cf.getPrefixProvider().providePrefix(ctx);
 		
 		if(e.getMessage().getContentRaw().startsWith(commandPrefix) || 
 				(this.cf.isAllowMentionCmd() && e.getMessage().getContentRaw().startsWith(e.getJDA().getSelfUser().getAsMention()))) {
+			ctx = new Context((PrefixContext) ctx);
 			this.cf.getCommandMap().dispatchCommand(ctx);
 		}
 	}

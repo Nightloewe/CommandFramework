@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import dev.teamnight.command.ICommand;
 import dev.teamnight.command.IContext;
 import dev.teamnight.command.IModule;
@@ -20,6 +23,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AnnotatedCommand implements ICommand {
+	
+	private static Logger LOGGER = LogManager.getLogger(AnnotatedCommand.class);
 
 	private String name;
 	private String[] usage;
@@ -168,6 +173,11 @@ public class AnnotatedCommand implements ICommand {
 			
 			return returnValue;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			new BotEmbedBuilder()
+				.setDescription("An error occured while executing this command.")
+				.withErrorColor()
+				.sendMessage(ctx.getChannel());
+			LOGGER.error("An error occured while executing the command " + this.getName() + ": " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		

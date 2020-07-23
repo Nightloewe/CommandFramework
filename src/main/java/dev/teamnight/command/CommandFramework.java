@@ -1,6 +1,7 @@
 package dev.teamnight.command;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -8,9 +9,7 @@ import org.apache.logging.log4j.Logger;
 import dev.teamnight.command.annotations.Command;
 import dev.teamnight.command.standard.AnnotatedCommand;
 import dev.teamnight.command.standard.JDAListener;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class CommandFramework {
@@ -21,14 +20,16 @@ public class CommandFramework {
 	
 	private List<ICommandListener> listeners; //Implemented
 	
-	private List<Guild> blockedGuilds; //Implemented
-	private List<User> blockedUsers; //Implemented
+	private List<Long> blockedGuilds; //Implemented
+	private List<Long> blockedUsers; //Implemented
 	
-	private List<User> botOwners; //Implemented
+	private List<Long> botOwners; //Implemented
+	private List<User> botOwnerList;
 	
 	private PrefixProvider prefixProvider; //Implemented
 	private LanguageProvider langProvier; //Implemented
 	private PermissionProvider permProvider; //Implemented
+	private HelpProvider helpProvider;
 	
 	private ShardManager shardManager; //no need
 	
@@ -41,10 +42,10 @@ public class CommandFramework {
 	}
 	
 	public CommandFramework(Logger logger, ShardManager manager, ICommandMap commandMap, 
-			List<User> owners, List<User> blockedUsers, List<Guild> blockedGuilds,
+			List<Long> owners, List<Long> blockedUsers, List<Long> blockedGuilds,
 			List<ICommandListener> listeners, PrefixProvider prefixProvider,
 			LanguageProvider languageProvider, PermissionProvider permissionProvider,
-		    boolean allowDM, boolean allowMention, boolean allowBots) {
+			HelpProvider helpProvider, boolean allowDM, boolean allowMention, boolean allowBots) {
 		this.logger = logger;
 		
 		this.map = commandMap;
@@ -53,10 +54,14 @@ public class CommandFramework {
 		this.blockedUsers = blockedUsers;
 		
 		this.botOwners = owners;
+		this.botOwnerList = new ArrayList<User>();
+		
+		this.listeners = listeners;
 		
 		this.prefixProvider = prefixProvider;
 		this.langProvier = languageProvider;
 		this.permProvider = permissionProvider;
+		this.helpProvider = helpProvider;
 		
 		this.shardManager = manager;
 		
@@ -87,22 +92,29 @@ public class CommandFramework {
 	 * 
 	 * @return the blockedGuilds
 	 */
-	public List<Guild> getBlockedGuilds() {
+	public List<Long> getBlockedGuilds() {
 		return this.blockedGuilds;
 	}
 
 	/**
 	 * @return the blockedUsers
 	 */
-	public List<User> getBlockedUsers() {
+	public List<Long> getBlockedUsers() {
 		return blockedUsers;
 	}
 
 	/**
 	 * @return the botOwners
 	 */
-	public List<User> getBotOwners() {
+	public List<Long> getBotOwners() {
 		return botOwners;
+	}
+	
+	/**
+	 * @return a list of {@link User} of the botOwners
+	 */
+	public List<User> getBotOwnerList() {
+		return botOwnerList;
 	}
 	
 	/**
@@ -132,6 +144,13 @@ public class CommandFramework {
 	 */
 	public PermissionProvider getPermProvider() {
 		return permProvider;
+	}
+	
+	/**
+	 * @return the helpProvider
+	 */
+	public HelpProvider getHelpProvider() {
+		return helpProvider;
 	}
 
 	/**
@@ -163,7 +182,7 @@ public class CommandFramework {
 	}
 
 	public boolean isOwner(User user) {
-		return this.botOwners.contains(user);
+		return this.botOwners.contains(user.getIdLong());
 	}
 
 	public void registerCommands(Module module) {
