@@ -19,6 +19,8 @@ public class CommandFramework {
 	
 	private ICommandMap map; //Implemented
 	
+	private IArgumentProcessor argProcessor;
+	
 	private List<ICommandListener> listeners; //Implemented
 	
 	private List<Long> blockedGuilds; //Implemented
@@ -43,13 +45,16 @@ public class CommandFramework {
 	}
 	
 	public CommandFramework(Logger logger, ShardManager manager, ICommandMap commandMap, 
-			List<Long> owners, List<Long> blockedUsers, List<Long> blockedGuilds,
-			List<ICommandListener> listeners, PrefixProvider prefixProvider,
-			LanguageProvider languageProvider, PermissionProvider permissionProvider,
-			HelpProvider helpProvider, boolean allowDM, boolean allowMention, boolean allowBots) {
+			IArgumentProcessor processor, List<Long> owners, List<Long> blockedUsers, 
+			List<Long> blockedGuilds, List<ICommandListener> listeners, 
+			PrefixProvider prefixProvider, LanguageProvider languageProvider, 
+			PermissionProvider permissionProvider, HelpProvider helpProvider, 
+			boolean allowDM, boolean allowMention, boolean allowBots) {
 		this.logger = logger;
 		
 		this.map = commandMap;
+		
+		this.argProcessor = processor;
 		
 		this.blockedGuilds = blockedGuilds;
 		this.blockedUsers = blockedUsers;
@@ -87,6 +92,13 @@ public class CommandFramework {
 	 */
 	public ICommandMap getCommandMap() {
 		return this.map;
+	}
+	
+	/**
+	 * @return the Command Processor
+	 */
+	public IArgumentProcessor getArgumentProcessor() {
+		return this.argProcessor;
 	}
 	
 	/**

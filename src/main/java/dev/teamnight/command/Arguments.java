@@ -3,19 +3,31 @@ package dev.teamnight.command;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Arguments implements Iterable<String> {
 
 	private final String[] args;
+	private final Map<String, String> namedArgs;
+	
 	private ArgumentIterator it;
 	
-	public Arguments(String[] args) {
+	public Arguments(String[] args, Map<String, String> namedArgs) {
 		this.args = args;
+		this.namedArgs = namedArgs;
 		this.it = (ArgumentIterator) iterator();
 	}
 	
 	public String get(int index) {
-		return null;
+		if(index > args.length) {
+			return null;
+		}
+		
+		return args[index];
+	}
+	
+	public String getNamed(String key) {
+		return this.namedArgs.get(key);
 	}
 	
 	public String next() {

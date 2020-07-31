@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import dev.teamnight.command.standard.CommandMap;
+import dev.teamnight.command.standard.DefaultArgumentProcessor;
 import dev.teamnight.command.standard.DefaultHelpProvider;
 import dev.teamnight.command.standard.DefaultLanguageProvider;
 import dev.teamnight.command.standard.DefaultPermissionProvider;
@@ -36,6 +37,7 @@ public class FrameworkBuilder {
 	private HelpProvider helpProvider;
 	
 	private ICommandMap commandMap;
+	private IArgumentProcessor argumentProcessor;
 	
 	private Logger logger;
 	
@@ -156,6 +158,11 @@ public class FrameworkBuilder {
 		return this;
 	}
 	
+	public FrameworkBuilder withCustomArgumentProcessor(IArgumentProcessor processor) {
+		this.argumentProcessor = processor;
+		return this;
+	}
+	
 	public FrameworkBuilder setLogger(Logger logger) {
 		this.logger = logger;
 		return this;
@@ -167,6 +174,9 @@ public class FrameworkBuilder {
 	}
 	
 	public CommandFramework build() {
+		if(this.argumentProcessor == null)
+			this.argumentProcessor = new DefaultArgumentProcessor();
+		
 		if(this.prefixProvider == null)
 			this.prefixProvider = new DefaultPrefixProvider(".");
 		
@@ -188,6 +198,9 @@ public class FrameworkBuilder {
 		if(this.shardManager == null)
 			throw new IllegalArgumentException("shardManager can not be null; It must be provided within the Builder");
 		
-		return new CommandFramework(logger, shardManager, commandMap, owners, blockedUsers, blockedGuilds, listeners, prefixProvider, langProvider, permProvider, helpProvider, allowDM, allowMentionCmd, allowBots);
+		return new CommandFramework(logger, shardManager, commandMap, argumentProcessor, 
+				owners, blockedUsers, blockedGuilds, listeners, 
+				prefixProvider, langProvider, permProvider, helpProvider, 
+				allowDM, allowMentionCmd, allowBots);
 	}
 }

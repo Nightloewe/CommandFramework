@@ -1,8 +1,6 @@
 package dev.teamnight.command.standard;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 
 import dev.teamnight.command.Arguments;
@@ -37,49 +35,14 @@ public class Context implements IContext {
 		
 		this.botPrefix = prefixContext.getPrefix();
 		
-		String[] params = message.getContentRaw().split(" ");
+		String[] args = message.getContentRaw().split(" ");
 		
-		ArrayList<String> paramsList = new ArrayList<String>(Arrays.asList(params));
-		
-		ArrayList<String> args = new ArrayList<String>();
-		
-		this.command = paramsList.get(0).substring(this.botPrefix.length());
-		paramsList.remove(0);
-		
-		boolean argumentParsing = false;
-		
-		for(int i = 0; i < paramsList.size(); i++) {
-			String param = paramsList.get(i);
-			
-			if(param.startsWith("\"")) {
-				argumentParsing = true;
-				
-				ParamsLoop:
-				for(int j = i + 1; j < paramsList.size(); j++) {
-					String secondParam = paramsList.get(j);
-					
-					if(secondParam.endsWith("\"")) {
-						param += " " + secondParam.substring(0, secondParam.length() - 1);
-						param = param.substring(1);
-						
-						argumentParsing = false;
-						i = j; //to set counter to another value
-						break ParamsLoop;
-					} else {
-						param += " " + secondParam;
-					}
-				}
-				
-			}
-			
-			if(argumentParsing) {
-				throw new IllegalArgumentException("Command argument is starting with \" but isn't ending with \"");
-			}
-			
-			args.add(param);
+		if(args.length < 1) {
+			throw new IllegalArgumentException("Message does not contain command string or anything else.");
 		}
 		
-		this.arguments = new Arguments(args.toArray(new String[args.size()]));
+		this.command = args[0].substring(this.botPrefix.length());
+		this.arguments = this.cf.getArgumentProcessor().process(message.getContentRaw());
 	}
 	
 	@Override
