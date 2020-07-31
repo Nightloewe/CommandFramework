@@ -31,7 +31,9 @@ public interface IContext {
 	
 	public String getCommand();
 	
-	public String[] getArguments();
+	public Arguments getArguments();
+	
+	public String[] getArgumentsRaw();
 	
 	public String getPrefix();
 	

@@ -7,8 +7,9 @@ import java.util.List;
 import org.apache.logging.log4j.Logger;
 
 import dev.teamnight.command.annotations.Command;
-import dev.teamnight.command.standard.AnnotatedCommand;
+import dev.teamnight.command.standard.DefaultAnnotatedCommand;
 import dev.teamnight.command.standard.JDAListener;
+import dev.teamnight.command.standard.Module;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -190,7 +191,7 @@ public class CommandFramework {
 			if(method.getAnnotation(Command.class) != null) {
 				Command commandAnnotation = method.getAnnotation(Command.class);
 				
-				AnnotatedCommand command = new AnnotatedCommand(commandAnnotation.name(), commandAnnotation.usage(), commandAnnotation.description(), commandAnnotation.aliases(), method, module);
+				AnnotatedCommand command = new DefaultAnnotatedCommand(commandAnnotation.name(), commandAnnotation.usage(), commandAnnotation.description(), commandAnnotation.aliases(), method, module);
 				
 				this.getCommandMap().register(command);
 			}

@@ -1,9 +1,12 @@
-package dev.teamnight.command;
+package dev.teamnight.command.standard;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import dev.teamnight.command.ICommand;
+import dev.teamnight.command.ICommandMap;
+import dev.teamnight.command.IContext;
 import dev.teamnight.command.utils.BotEmbedBuilder;
 import dev.teamnight.command.utils.PermissionUtil;
 

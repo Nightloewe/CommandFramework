@@ -1,10 +1,13 @@
-package dev.teamnight.command;
+package dev.teamnight.command.standard;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+import dev.teamnight.command.Arguments;
+import dev.teamnight.command.CommandFramework;
+import dev.teamnight.command.IContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,7 +22,7 @@ public class Context implements IContext {
 	private Optional<Guild> guild;
 	private Optional<Member> guildMember;
 	private Message message;
-	private String[] arguments;
+	private Arguments arguments;
 	private String command;
 	private String botPrefix;
 
@@ -76,7 +79,7 @@ public class Context implements IContext {
 			args.add(param);
 		}
 		
-		this.arguments = args.toArray(new String[args.size()]);
+		this.arguments = new Arguments(args.toArray(new String[args.size()]));
 	}
 	
 	@Override
@@ -118,10 +121,15 @@ public class Context implements IContext {
 	public String getCommand() {
 		return this.command;
 	}
+	
+	@Override
+	public Arguments getArguments() {
+		return this.arguments;
+	}
 
 	@Override
-	public String[] getArguments() {
-		return this.arguments;
+	public String[] getArgumentsRaw() {
+		return this.arguments.toList().toArray(new String[this.arguments.size()]);
 	}
 
 	@Override

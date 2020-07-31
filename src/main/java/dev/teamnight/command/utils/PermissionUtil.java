@@ -3,11 +3,11 @@ package dev.teamnight.command.utils;
 import java.util.LinkedList;
 import java.util.List;
 
+import dev.teamnight.command.AnnotatedCommand;
 import dev.teamnight.command.ICommand;
 import dev.teamnight.command.IContext;
 import dev.teamnight.command.IPermission;
 import dev.teamnight.command.Tribool;
-import dev.teamnight.command.standard.AnnotatedCommand;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;

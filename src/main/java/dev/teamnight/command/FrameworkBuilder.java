@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import dev.teamnight.command.standard.CommandMap;
 import dev.teamnight.command.standard.DefaultHelpProvider;
 import dev.teamnight.command.standard.DefaultLanguageProvider;
 import dev.teamnight.command.standard.DefaultPermissionProvider;

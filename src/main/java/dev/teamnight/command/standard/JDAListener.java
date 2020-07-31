@@ -1,9 +1,7 @@
 package dev.teamnight.command.standard;
 
 import dev.teamnight.command.CommandFramework;
-import dev.teamnight.command.Context;
 import dev.teamnight.command.IContext;
-import dev.teamnight.command.PrefixContext;
 import dev.teamnight.command.utils.BotEmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.User;

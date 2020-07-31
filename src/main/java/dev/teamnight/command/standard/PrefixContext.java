@@ -1,8 +1,11 @@
-package dev.teamnight.command;
+package dev.teamnight.command.standard;
 
 import java.text.MessageFormat;
 import java.util.Optional;
 
+import dev.teamnight.command.Arguments;
+import dev.teamnight.command.CommandFramework;
+import dev.teamnight.command.IContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -70,9 +73,14 @@ public class PrefixContext implements IContext {
 	public String getCommand() {
 		throw new UnsupportedOperationException("PrefixContext does not provide the command");
 	}
-
+	
 	@Override
-	public String[] getArguments() {
+	public Arguments getArguments() {
+		throw new UnsupportedOperationException("PrefixContext does not provide args");
+	}
+	
+	@Override
+	public String[] getArgumentsRaw() {
 		throw new UnsupportedOperationException("PrefixContext does not provide args");
 	}
 

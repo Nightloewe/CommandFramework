@@ -1,4 +1,4 @@
-package dev.teamnight.command.standard;
+package dev.teamnight.command;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
@@ -7,51 +7,57 @@ import java.lang.reflect.Method;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dev.teamnight.command.ICommand;
-import dev.teamnight.command.IContext;
-import dev.teamnight.command.IModule;
-import dev.teamnight.command.Tribool;
 import dev.teamnight.command.annotations.RequireBotSelfPermission;
 import dev.teamnight.command.annotations.RequireCommandPermission;
 import dev.teamnight.command.annotations.RequireGuild;
 import dev.teamnight.command.annotations.RequireOwner;
 import dev.teamnight.command.annotations.RequireUserPermission;
+import dev.teamnight.command.annotations.Requires;
 import dev.teamnight.command.utils.BotEmbedBuilder;
 import dev.teamnight.command.utils.PermissionUtil;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-public class AnnotatedCommand implements ICommand {
+public abstract class AnnotatedCommand implements ICommand {
 	
 	private static Logger LOGGER = LogManager.getLogger(AnnotatedCommand.class);
 
-	private String name;
-	private String[] usage;
-	private String description;
-	private String module;
+	protected final String name;
+	protected final String[] usage;
+	protected final String[] aliases;
+	protected final  String description;
+	protected final  String module;
 	
-	private Method method;
-	
-	private Object invokeObject;
-	private String[] aliases;
+	protected final Method method;
+	protected final Object invokeObject;
 	
 	public AnnotatedCommand(String name, String[] usage, String description, Method method, Object invokeObject) {
+		this(name, usage, description, null, method, invokeObject);
+	}
+	
+	public AnnotatedCommand(String name, String[] usage, String description, String[] aliases, Method method, Object invokeObject) {
 		this.name = name;
 		this.usage = usage;
 		this.description = description;
 		this.method = method;
 		this.invokeObject = invokeObject;
+		this.aliases = aliases;
 		
 		if(invokeObject instanceof IModule) {
 			IModule module = (IModule) invokeObject;
 			this.module = module.getName();
+		} else {
+			this.module = null;
 		}
-	}
-	
-	public AnnotatedCommand(String name, String[] usage, String description, String[] aliases, Method method, Object invokeObject) {
-		this(name, usage, description, method, invokeObject);
-		this.aliases = aliases;
+		
+		if(method.isAnnotationPresent(Requires.class)) {
+			Requires condition = method.getAnnotation(Requires.class);
+			
+			if(!Condition.class.isAssignableFrom(condition.value())) {
+				throw new IllegalArgumentException("Requires must contain an implementation of dev.teamnight.command.Condition");
+			}
+		}
 	}
 	
 	@Override
@@ -122,6 +128,9 @@ public class AnnotatedCommand implements ICommand {
 			}
 		}
 		
+		/**
+		 * Requires that the user has a specific Discord Permission
+		 */
 		if(method.getAnnotation(RequireUserPermission.class) != null && permissionResult == Tribool.NEUTRAL) {
 			RequireUserPermission annotation = method.getAnnotation(RequireUserPermission.class);
 			
@@ -147,6 +156,9 @@ public class AnnotatedCommand implements ICommand {
 			}
 		}
 		
+		/**
+		 * Requires that the command gets executed in a guild
+		 */
 		if(method.getAnnotation(RequireGuild.class) != null) {
 			if(!ctx.getGuild().isPresent()) {
 				ctx.getChannel().sendMessage(
@@ -156,16 +168,28 @@ public class AnnotatedCommand implements ICommand {
 			}
 		}
 		
-		//TODO: needs to be replaced by LocalizedString
 		if(permissionResult == Tribool.FALSE && method.getAnnotation(RequireOwner.class) == null) {
 			new BotEmbedBuilder().setDescription(ctx.getLocalizedString("PERMISSION_DENIED", ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 			return true;
 		}
 		
-		//TODO: needs to be replaced by LocalizedString
 		if(method.getAnnotation(RequireCommandPermission.class) != null && permissionResult != Tribool.TRUE) {
 			new BotEmbedBuilder().setDescription(ctx.getLocalizedString("NEED_PRESET_PERMISSION", ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 			return true;
+		}
+		
+		if(method.isAnnotationPresent(Requires.class)) {
+			Requires requires = method.getAnnotation(Requires.class);
+			
+			try {
+				Condition cond = (Condition) requires.value().getConstructor(IContext.class).newInstance(ctx);
+				
+				boolean canExecute = cond.canExecute();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				new BotEmbedBuilder().setDescription("An error occured while checking the conditions for the command execution.").withErrorColor().sendMessage(ctx.getChannel());
+				e.printStackTrace();
+			}
 		}
 		
 		try {
