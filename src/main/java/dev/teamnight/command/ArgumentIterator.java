@@ -19,7 +19,11 @@ public class ArgumentIterator implements Iterator<String> {
 
 	@Override
 	public String next() {
-		return this.args[position++];
+		String arg = this.args[position];
+		
+		++position;
+		
+		return arg;
 	}
 	
 	public int getPosition() {

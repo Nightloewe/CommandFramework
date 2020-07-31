@@ -13,7 +13,7 @@ public class NamedArgumentProcessor implements IArgumentProcessor {
 
 	@Override
 	public Arguments process(String messageRaw) {
-		List<String> argsList = Arrays.asList(messageRaw.split(" "));
+		ArrayList<String> argsList = new ArrayList<String>(Arrays.asList(messageRaw.split(" ")));
 		argsList.remove(0);
 		
 		return this.process(argsList);

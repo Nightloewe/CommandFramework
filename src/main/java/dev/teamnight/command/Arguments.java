@@ -39,7 +39,7 @@ public class Arguments implements Iterable<String> {
 	}
 	
 	public int nextCount() {
-		return this.args.length - it.getPosition() - 1;
+		return this.args.length - it.getPosition();
 	}
 	
 	public String[] getRemaining() {
