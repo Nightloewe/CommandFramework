@@ -1,13 +1,12 @@
 package dev.teamnight.command;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import dev.teamnight.command.annotations.Command;
-import dev.teamnight.command.standard.DefaultAnnotatedCommand;
 import dev.teamnight.command.standard.JDAListener;
 import dev.teamnight.command.standard.Module;
 import net.dv8tion.jda.api.entities.User;
@@ -20,8 +19,10 @@ public class CommandFramework {
 	private ICommandMap map; //Implemented
 	
 	private IArgumentProcessor argProcessor;
+	private IModuleAnalyzer moduleAnalyzer;
 	
 	private List<ICommandListener> listeners; //Implemented
+	private Map<String, IRegisteredModule> modules;
 	
 	private List<Long> blockedGuilds; //Implemented
 	private List<Long> blockedUsers; //Implemented
@@ -45,16 +46,19 @@ public class CommandFramework {
 	}
 	
 	public CommandFramework(Logger logger, ShardManager manager, ICommandMap commandMap, 
-			IArgumentProcessor processor, List<Long> owners, List<Long> blockedUsers, 
-			List<Long> blockedGuilds, List<ICommandListener> listeners, 
-			PrefixProvider prefixProvider, LanguageProvider languageProvider, 
-			PermissionProvider permissionProvider, HelpProvider helpProvider, 
-			boolean allowDM, boolean allowMention, boolean allowBots) {
+			IArgumentProcessor processor, IModuleAnalyzer moduleAnalyzer,
+			List<Long> owners, List<Long> blockedUsers, List<Long> blockedGuilds, 
+			List<ICommandListener> listeners, PrefixProvider prefixProvider, 
+			LanguageProvider languageProvider, PermissionProvider permissionProvider, 
+			HelpProvider helpProvider, boolean allowDM, boolean allowMention, boolean allowBots) {
 		this.logger = logger;
 		
 		this.map = commandMap;
 		
 		this.argProcessor = processor;
+		this.moduleAnalyzer = moduleAnalyzer;
+		
+		this.modules = new HashMap<String, IRegisteredModule>();
 		
 		this.blockedGuilds = blockedGuilds;
 		this.blockedUsers = blockedUsers;
@@ -137,6 +141,13 @@ public class CommandFramework {
 	public List<ICommandListener> getListeners() {
 		return listeners;
 	}
+	
+	/**
+	 * @return List<IRegisteredModule> the modules
+	 */
+	public Map<String, IRegisteredModule> getModules() {
+		return modules;
+	}
 
 	/**
 	 * @return the prefixProvider
@@ -199,14 +210,10 @@ public class CommandFramework {
 	}
 
 	public void registerCommands(Module module) {
-		for(Method method : module.getClass().getDeclaredMethods()) {
-			if(method.getAnnotation(Command.class) != null) {
-				Command commandAnnotation = method.getAnnotation(Command.class);
-				
-				AnnotatedCommand command = new DefaultAnnotatedCommand(commandAnnotation.name(), commandAnnotation.usage(), commandAnnotation.description(), commandAnnotation.aliases(), method, module);
-				
-				this.getCommandMap().register(command);
-			}
-		}
+		IRegisteredModule regModule = this.moduleAnalyzer.analyze(module);
+		
+		regModule.getCommands().forEach(cmd -> this.getCommandMap().register(cmd));
+		
+		this.modules.put(regModule.getName(), regModule);
 	}
 }

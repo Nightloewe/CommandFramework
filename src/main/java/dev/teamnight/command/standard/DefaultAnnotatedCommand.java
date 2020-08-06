@@ -1,8 +1,10 @@
 package dev.teamnight.command.standard;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import dev.teamnight.command.AnnotatedCommand;
+import dev.teamnight.command.annotations.Requires;
 
 public class DefaultAnnotatedCommand extends AnnotatedCommand {
 
@@ -11,8 +13,8 @@ public class DefaultAnnotatedCommand extends AnnotatedCommand {
 		super(name, usage, description, method, invokeObject);
 	}
 	
-	public DefaultAnnotatedCommand(String name, String[] usage, String description, String[] aliases, Method method, Object invokeObject) {
-		super(name, usage, description, aliases, method, invokeObject);
+	public DefaultAnnotatedCommand(String name, String[] usage, String description, String[] aliases, List<Requires> requires, Method method, Object invokeObject) {
+		super(name, usage, description, aliases, requires, method, invokeObject);
 	}
 
 }

@@ -1,5 +1,8 @@
 package dev.teamnight.command;
 
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.internal.utils.tuple.Pair;
+
 public interface ICommand {
 
 	/**
@@ -21,6 +24,14 @@ public interface ICommand {
 	 * @return String array with command aliases
 	 */
 	public String[] getAliases();
+	
+	public Pair<Permission[], Permission[]> getBotSelfPermissions();
+	
+	public Pair<Permission[], Permission[]> getUserPermissions();
+	
+	public boolean isRequireCommandPermission();
+	
+	public boolean isRequireOwner();
 	
 	/**
 	 * @param ctx
