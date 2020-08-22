@@ -10,6 +10,7 @@ import dev.teamnight.command.IModule;
 import dev.teamnight.command.IModuleAnalyzer;
 import dev.teamnight.command.IRegisteredModule;
 import dev.teamnight.command.annotations.Command;
+import dev.teamnight.command.annotations.Hidden;
 import dev.teamnight.command.annotations.Requires;
 
 public class AnnotatedModuleAnalyzer implements IModuleAnalyzer {
@@ -28,7 +29,12 @@ public class AnnotatedModuleAnalyzer implements IModuleAnalyzer {
 			requires.add(req);
 		}
 		
-		DefaultRegisteredModule module = new DefaultRegisteredModule(theModule, new ArrayList<>(), requires);
+		boolean isHidden = false;
+		if(theModuleClass.isAnnotationPresent(Hidden.class)) {
+			isHidden = true;
+		}
+		
+		DefaultRegisteredModule module = new DefaultRegisteredModule(theModule, new ArrayList<>(), requires, isHidden);
 		
 		for(Method method : theModuleClass.getDeclaredMethods()) {
 			if(method.isAnnotationPresent(Command.class)) {

@@ -10,4 +10,6 @@ public interface IRegisteredModule extends IModule {
 	
 	public List<ICommand> getCommands();
 	
+	public boolean isHidden();
+	
 }

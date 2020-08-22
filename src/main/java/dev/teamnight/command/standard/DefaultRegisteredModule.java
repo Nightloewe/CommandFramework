@@ -12,11 +12,17 @@ public class DefaultRegisteredModule implements IRegisteredModule {
 	private IModule module;
 	private List<ICommand> commands;
 	private List<Requires> conditions;
+	private boolean hidden;
 	
 	public DefaultRegisteredModule(IModule base, List<ICommand> commands, List<Requires> conditions) {
+		this(base, commands, conditions, false);
+	}
+	
+	public DefaultRegisteredModule(IModule base, List<ICommand> commands, List<Requires> conditions, boolean isHidden) {
 		this.module = base;
 		this.commands = commands;
 		this.conditions = conditions;
+		this.hidden = isHidden;
 	}
 	
 	@Override
@@ -32,6 +38,11 @@ public class DefaultRegisteredModule implements IRegisteredModule {
 	@Override
 	public List<ICommand> getCommands() {
 		return this.commands;
+	}
+	
+	@Override
+	public boolean isHidden() {
+		return this.hidden;
 	}
 
 }
