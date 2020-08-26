@@ -44,6 +44,7 @@ public class FrameworkBuilder {
 	private Logger logger;
 	
 	private ShardManager shardManager;
+	private boolean registerLater = false;
 	
 	protected static FrameworkBuilder newBuilder() {
 		return new FrameworkBuilder();
@@ -180,6 +181,11 @@ public class FrameworkBuilder {
 		return this;
 	}
 	
+	public FrameworkBuilder registerClientLater() {
+		this.registerLater = true;
+		return this;
+	}
+	
 	public CommandFramework build() {
 		if(this.argumentProcessor == null)
 			this.argumentProcessor = new DefaultArgumentProcessor();
@@ -205,8 +211,8 @@ public class FrameworkBuilder {
 		if(this.logger == null)
 			this.logger = LogManager.getLogger();
 		
-		if(this.shardManager == null)
-			throw new IllegalArgumentException("shardManager can not be null; It must be provided within the Builder");
+		if(this.shardManager == null && !this.registerLater)
+			throw new IllegalArgumentException("shardManager can not be null, you need to provide it or call registerClientLater()");
 		
 		return new CommandFramework(logger, shardManager, commandMap, argumentProcessor, moduleAnalyzer, 
 				owners, blockedUsers, blockedGuilds, listeners, 

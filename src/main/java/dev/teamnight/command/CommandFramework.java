@@ -73,13 +73,13 @@ public class CommandFramework {
 		this.permProvider = permissionProvider;
 		this.helpProvider = helpProvider;
 		
-		this.shardManager = manager;
-		
 		this.allowDM = allowDM;
 		this.allowMentionCmd = allowMention;
 		this.allowBots = allowBots;
 		
-		this.shardManager.addEventListener(new JDAListener(this));
+		if(shardManager != null) {
+			this.setShardManager(manager);
+		}
 	}
 	
 	/**
@@ -150,6 +150,25 @@ public class CommandFramework {
 	}
 
 	/**
+	 * Analyzes a module and registers all commands within.
+	 * @param {@link dev.teamnight.command.IModule} the module
+	 */
+	public void addModule(IModule module) {
+		IRegisteredModule regModule = this.moduleAnalyzer.analyze(module);
+		
+		regModule.getCommands().forEach(cmd -> this.getCommandMap().register(cmd));
+		
+		this.modules.put(regModule.getName(), regModule);
+	}
+	
+	/**
+	 * @see {@link dev.teamnight.command.CommandFramework#addModule(IModule)}
+	 */
+	public void registerCommands(IModule module) {
+		this.addModule(module);
+	}
+
+	/**
 	 * @return the prefixProvider
 	 */
 	public PrefixProvider getPrefixProvider() {
@@ -183,6 +202,17 @@ public class CommandFramework {
 	public ShardManager getShardManager() {
 		return shardManager;
 	}
+	
+	/**
+	 * Sets the shard manager and registers the local
+	 * message listener.
+	 * @param {@link net.dv8tion.jda.api.sharding.ShardManager} the shard Manager
+	 */
+	public void setShardManager(ShardManager shardManager) {
+		this.shardManager = shardManager;
+		
+		this.shardManager.addEventListener(new JDAListener(this));
+	}
 
 	/**
 	 * @return the allowDM
@@ -207,13 +237,5 @@ public class CommandFramework {
 
 	public boolean isOwner(User user) {
 		return this.botOwners.contains(user.getIdLong());
-	}
-
-	public void registerCommands(Module module) {
-		IRegisteredModule regModule = this.moduleAnalyzer.analyze(module);
-		
-		regModule.getCommands().forEach(cmd -> this.getCommandMap().register(cmd));
-		
-		this.modules.put(regModule.getName(), regModule);
 	}
 }

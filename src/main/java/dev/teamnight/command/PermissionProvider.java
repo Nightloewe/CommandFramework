@@ -26,4 +26,15 @@ public interface PermissionProvider {
 	 */
 	public List<IPermission> getGuildPermissions(Guild guild);
 	
+	/**
+	 * Returns Tribool.TRUE if the user is allowed to
+	 * execute the command, Tribool.NEUTRAL if there is
+	 * no permission and the default behaviour is required,
+	 * and Tribool.FALSE if the command execution is denied.
+	 * 
+	 * @param {@link dev.teamnight.command.IContext} the Command Context
+	 * @return {@link dev.teamnight.command.Tribool} the Tribool
+	 */
+	public Tribool canExecute(IContext ctx);
+	
 }

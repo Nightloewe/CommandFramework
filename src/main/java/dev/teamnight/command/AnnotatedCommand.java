@@ -158,7 +158,7 @@ public abstract class AnnotatedCommand implements ICommand {
 
 	@Override
 	public boolean execute(IContext ctx) {
-		Tribool permissionResult = PermissionUtil.canExecute(ctx);
+		Tribool permissionResult = ctx.getCmdFramework().getPermProvider().canExecute(ctx);
 		
 		/**
 		 * Requires Bot Owner

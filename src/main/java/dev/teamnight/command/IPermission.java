@@ -38,25 +38,13 @@ public interface IPermission {
 	 * The module name.
 	 * @return {@link Optional} containing the module name or nothing
 	 */
-	public Optional<String> getModuleName();
-	
-	/**
-	 * The corresponding module
-	 * @return {@link Optional} containing the module or nothing
-	 */
-	public Optional<IModule> getModule();
+	public Optional<String> getModule();
 	
 	/**
 	 * The command name
 	 * @return {@link Optional} containing the command name or nothing
 	 */
-	public Optional<String> getCommandName();
-	
-	/**
-	 * The command
-	 * @return {@link} containing an {@link ICommand} or nothing
-	 */
-	public Optional<ICommand> getCommand();
+	public Optional<String> getCommand();
 	
 	/**
 	 * Either true or false. True allows a command or module to be used, false denies it
