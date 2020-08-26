@@ -6,6 +6,11 @@ import java.util.List;
 import dev.teamnight.command.AnnotatedCommand;
 import dev.teamnight.command.annotations.Requires;
 
+/**
+ * The default implementation of AnnotatedCommand.
+ * 
+ * @author Jonas Müller
+ */
 public class DefaultAnnotatedCommand extends AnnotatedCommand {
 
 	public DefaultAnnotatedCommand(String name, String[] usage, String description, Method method,
