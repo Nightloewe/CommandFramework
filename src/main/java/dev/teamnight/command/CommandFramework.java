@@ -159,6 +159,10 @@ public class CommandFramework {
 		return listeners;
 	}
 	
+	public void addCommandListener(ICommandListener listener) {
+		this.listeners.add(listener);
+	}
+	
 	/**
 	 * @return List<IRegisteredModule> the modules
 	 */

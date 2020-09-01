@@ -71,4 +71,15 @@ public interface IPermission {
 	 * @return boolean true or false
 	 */
 	public Tribool getAction();
+	
+	/**
+	 * This method determines whether this permission has the same
+	 * target and only differs from another permission by its
+	 * action. As doubled permissions with different actions are
+	 * not allowed, this method should be used in order to prevent 
+	 * this behaviour when adding permissions.
+	 * 
+	 * @return true if all values are equal except the action and id.
+	 */
+	public boolean equalsIgnoreAction(IPermission other);
 }
