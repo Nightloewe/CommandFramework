@@ -15,16 +15,26 @@
  */
 package dev.teamnight.command;
 
+import java.util.List;
+
+import dev.teamnight.command.annotations.Requires;
+
 /**
- * An interface representing a module in the Bot, used for Command Help
+ * An internal representation of a module class
+ * registered using the Module annotation and
+ * the CommandFramework#registerModule method.
+ * 
  * @author Jonas
- *
  */
 public interface IModule {
-	
-	/**
-	 * @return String the name of the Module
-	 */
+
 	public String getName();
 	
+	public List<Requires> getConditions();
+	
+	public List<ICommand> getCommands();
+	
+	public boolean isHidden();
+	
+	public Class<?> getModuleClass();
 }

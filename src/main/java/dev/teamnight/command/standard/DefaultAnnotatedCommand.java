@@ -18,8 +18,8 @@ public class DefaultAnnotatedCommand extends AnnotatedCommand {
 		super(name, usage, description, method, invokeObject);
 	}
 	
-	public DefaultAnnotatedCommand(String name, String[] usage, String description, String[] aliases, List<Requires> requires, Method method, Object invokeObject) {
-		super(name, usage, description, aliases, requires, method, invokeObject);
+	public DefaultAnnotatedCommand(String name, String[] usage, String description, String[] aliases, List<Requires> requires, String module, Method method, Object invokeObject) {
+		super(name, usage, description, aliases, requires, module, method, invokeObject);
 	}
 
 }

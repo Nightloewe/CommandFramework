@@ -45,17 +45,63 @@ public interface ICommand {
 	 */
 	public String[] getAliases();
 	
+	/**
+	 * Returns a pair of two arrays containing discord
+	 * permissions that are required by the bot itself
+	 * in order to operate this command.
+	 * 
+	 * The first array contains permissions that are
+	 * required server-wide.
+	 * The second array contains permissions that are
+	 * required in the channel the bot is receiving
+	 * the command.
+	 * 
+	 * @return {@link net.dv8tion.jda.internal.utils.tuple.Pair<Permission[], Permission[]>}
+	 */
 	public Pair<Permission[], Permission[]> getBotSelfPermissions();
 	
+	/**
+	 * Returns a pair of two arrays containing discord
+	 * permissions that are required by the user in
+	 * order to execute this command.
+	 * 
+	 * The first array contains permissions that are
+	 * required server-wide.
+	 * The second array contains permissions that are
+	 * required in the channel the bot is receiving
+	 * the command.
+	 * 
+	 * @return {@link net.dv8tion.jda.internal.utils.tuple.Pair<Permission[], Permission[]>}
+	 */
 	public Pair<Permission[], Permission[]> getUserPermissions();
 	
+	/**
+	 * Determines whether a specific permission has
+	 * to be set by an server administrator in
+	 * order to execute this command.
+	 * 
+	 * Commands with this flag can only be executed
+	 * by users that have the ADMINISTRATOR
+	 * permission.
+	 * 
+	 * @return true if a command permission is required
+	 */
 	public boolean isRequireCommandPermission();
 	
+	/**
+	 * Determines whether this command can only be
+	 * run by the bot owner.
+	 * 
+	 * @return true if only the owner is allowed to execute
+	 */
 	public boolean isRequireOwner();
 	
 	/**
-	 * @param ctx
-	 * @return if success
+	 * Executes the command with a given Command
+	 * Context.
+	 * 
+	 * @param Context ctx
+	 * @return true if success
 	 */
 	public boolean execute(IContext ctx);
 	

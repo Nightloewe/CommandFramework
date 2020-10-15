@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
+import dev.teamnight.command.annotations.SubModule;
 import dev.teamnight.command.standard.JDAListener;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -39,7 +40,7 @@ public class CommandFramework {
 	private IModuleAnalyzer moduleAnalyzer;
 	
 	private List<ICommandListener> listeners; //Implemented
-	private Map<String, IRegisteredModule> modules;
+	private Map<String, IModule> topLevelModules;
 	
 	private List<Long> blockedGuilds; //Implemented
 	private List<Long> blockedUsers; //Implemented
@@ -75,7 +76,7 @@ public class CommandFramework {
 		this.argProcessor = processor;
 		this.moduleAnalyzer = moduleAnalyzer;
 		
-		this.modules = new HashMap<String, IRegisteredModule>();
+		this.topLevelModules = new HashMap<String, IModule>();
 		
 		this.blockedGuilds = blockedGuilds;
 		this.blockedUsers = blockedUsers;
@@ -166,20 +167,44 @@ public class CommandFramework {
 	/**
 	 * @return List<IRegisteredModule> the modules
 	 */
-	public Map<String, IRegisteredModule> getModules() {
-		return modules;
+	public Map<String, IModule> getModules() {
+		return topLevelModules;
 	}
 
 	/**
 	 * Analyzes a module and registers all commands within.
 	 * @param {@link dev.teamnight.command.IModule} the module
 	 */
-	public void addModule(IModule module) {
-		IRegisteredModule regModule = this.moduleAnalyzer.analyze(module);
+	public void addModule(Object module) {
+		IModule regModule = this.moduleAnalyzer.analyze(module);
 		
 		regModule.getCommands().forEach(cmd -> this.getCommandMap().register(cmd));
 		
-		this.modules.put(regModule.getName(), regModule);
+		if(!(regModule instanceof ITopLevelModule)) {
+			SubModule annotation = module.getClass().getAnnotation(SubModule.class);
+			
+			boolean foundTopLevelModule = false;
+			for(IModule mod : this.topLevelModules.values()) {
+				if(mod.getModuleClass() == annotation.baseModule()) {
+					if(!(mod instanceof ITopLevelModule)) {
+						throw new IllegalArgumentException("A submodule can not be the base module of another submodule");
+					}
+					
+					foundTopLevelModule = true;
+					ITopLevelModule tlm = (ITopLevelModule) mod;
+					
+					tlm.addSubModule(regModule);
+				}
+			}
+			
+			if(!foundTopLevelModule) {
+				throw new IllegalStateException("A submodule can only be added if a top-level-module was registered");
+			}
+
+			return;
+		}
+		
+		this.topLevelModules.put(regModule.getName(), regModule);
 	}
 	
 	/**

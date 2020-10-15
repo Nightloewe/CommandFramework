@@ -30,6 +30,8 @@ import dev.teamnight.command.annotations.RequireGuild;
 import dev.teamnight.command.annotations.RequireOwner;
 import dev.teamnight.command.annotations.RequireUserPermission;
 import dev.teamnight.command.annotations.Requires;
+import dev.teamnight.command.annotations.SubModule;
+import dev.teamnight.command.annotations.TopLevelModule;
 import dev.teamnight.command.utils.BotEmbedBuilder;
 import dev.teamnight.command.utils.PermissionUtil;
 
@@ -47,8 +49,8 @@ public abstract class AnnotatedCommand implements ICommand {
 	protected final String name;
 	protected final String[] usage;
 	protected final String[] aliases;
-	protected final  String description;
-	protected final  String module;
+	protected final String description;
+	protected final String module;
 	
 	protected final Method method;
 	protected final Object invokeObject;
@@ -72,10 +74,10 @@ public abstract class AnnotatedCommand implements ICommand {
 	 * @param Object invokeObject the object that the method is invoked on
 	 */
 	public AnnotatedCommand(String name, String[] usage, String description, Method method, Object invokeObject) {
-		this(name, usage, description, null, null, method, invokeObject);
+		this(name, usage, description, null, null, null, method, invokeObject);
 	}
 	
-	public AnnotatedCommand(String name, String[] usage, String description, String[] aliases, List<Requires> requires, Method method, Object invokeObject) {
+	public AnnotatedCommand(String name, String[] usage, String description, String[] aliases, List<Requires> requires, String module, Method method, Object invokeObject) {
 		this.name = name;
 		this.usage = usage;
 		this.description = description;
@@ -84,11 +86,17 @@ public abstract class AnnotatedCommand implements ICommand {
 		this.aliases = aliases;
 		this.conditions = requires != null ? requires : new ArrayList<Requires>();
 		
-		if(invokeObject instanceof IModule) {
-			IModule module = (IModule) invokeObject;
-			this.module = module.getName();
+		if(module == null) {
+			Class<?> clazz = invokeObject.getClass();
+			if(clazz.isAnnotationPresent(TopLevelModule.class)) {
+				this.module = clazz.getAnnotation(TopLevelModule.class).name();
+			} else if(clazz.isAnnotationPresent(SubModule.class)) {
+				this.module = clazz.getAnnotation(SubModule.class).name();
+			} else {
+				throw new IllegalArgumentException("Module can not be null");
+			}
 		} else {
-			this.module = null;
+			this.module = module;
 		}
 		
 		if(method.isAnnotationPresent(Requires.class)) {

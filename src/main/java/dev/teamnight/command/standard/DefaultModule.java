@@ -19,7 +19,6 @@ import java.util.List;
 
 import dev.teamnight.command.ICommand;
 import dev.teamnight.command.IModule;
-import dev.teamnight.command.IRegisteredModule;
 import dev.teamnight.command.annotations.Requires;
 
 /**
@@ -27,19 +26,22 @@ import dev.teamnight.command.annotations.Requires;
  * 
  * @author Jonas Müller
  */
-public class DefaultRegisteredModule implements IRegisteredModule {
+public class DefaultModule implements IModule {
 
-	private IModule module;
+	private Class<?> moduleClass;
+	
+	private String name;
 	private List<ICommand> commands;
 	private List<Requires> conditions;
 	private boolean hidden;
 	
-	public DefaultRegisteredModule(IModule base, List<ICommand> commands, List<Requires> conditions) {
-		this(base, commands, conditions, false);
+	public DefaultModule(Class<?> moduleClass, String name, List<ICommand> commands, List<Requires> conditions) {
+		this(moduleClass, name, commands, conditions, false);
 	}
 	
-	public DefaultRegisteredModule(IModule base, List<ICommand> commands, List<Requires> conditions, boolean isHidden) {
-		this.module = base;
+	public DefaultModule(Class<?> moduleClass, String name, List<ICommand> commands, List<Requires> conditions, boolean isHidden) {
+		this.moduleClass = moduleClass;
+		this.name = name;
 		this.commands = commands;
 		this.conditions = conditions;
 		this.hidden = isHidden;
@@ -47,7 +49,7 @@ public class DefaultRegisteredModule implements IRegisteredModule {
 	
 	@Override
 	public String getName() {
-		return module.getName();
+		return this.name;
 	}
 
 	@Override
@@ -63,6 +65,11 @@ public class DefaultRegisteredModule implements IRegisteredModule {
 	@Override
 	public boolean isHidden() {
 		return this.hidden;
+	}
+	
+	@Override
+	public Class<?> getModuleClass() {
+		return this.moduleClass;
 	}
 
 }

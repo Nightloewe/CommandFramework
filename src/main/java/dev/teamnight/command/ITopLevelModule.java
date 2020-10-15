@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.teamnight.command.standard;
+package dev.teamnight.command;
 
-import dev.teamnight.command.CommandFramework;
-import dev.teamnight.command.IModule;
+import java.util.List;
 
 /**
- * Abstract Module that registers all commands
- * in it's constructor.
+ * An internal representation of a module that
+ * can contain sub modules.
  * 
- * @author Jonas Müller
+ * @author Jonas
  */
-public abstract class Module implements IModule {
-	
-	public Module(CommandFramework cf) {
-		cf.registerCommands(this);
-	}
-	
-	public abstract String getName();
+public interface ITopLevelModule extends IModule {
 
+	public List<IModule> getSubModules();
+	
+	public void addSubModule(IModule module);
+	
 }

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.teamnight</groupId>
   <artifactId>CommandFramework</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.0</version>
   <name>Command Framework</name>
   <description>A Command Framework to provide an API for the handling of Commands given by a Message Event. The Framework provides several methods to collect Commands, check for specified Permissions and execute the Command properly.</description>
   
