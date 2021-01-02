@@ -123,7 +123,7 @@ public class Context implements IContext {
 	@Override
 	public String getLocalizedString(String key, Object... args) {
 		try {
-			return MessageFormat.format(this.cf.getLangProvier().provideString(this.guild.get(), key), args).replaceAll("\\{prefix\\}", this.botPrefix);
+			return MessageFormat.format(this.cf.getLangProvier().provideString(this.guild.get(), key).replaceAll("\\{prefix\\}", this.botPrefix), args);
 		} catch(IllegalArgumentException e) {
 			return "IllegalArgumentException: " + e.getMessage();
 		}
