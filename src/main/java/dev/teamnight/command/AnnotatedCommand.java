@@ -275,16 +275,15 @@ public abstract class AnnotatedCommand implements ICommand {
 		if(conditions.size() > 0) {
 			for(Requires requires : this.conditions) {
 				try {
-					Condition cond = (Condition) requires.value().getConstructor(IContext.class).newInstance(ctx);
+					Condition cond = ctx.getCmdFramework().getConditionRegistry().getCondition(requires.value());
 					
-					boolean canExecute = cond.canExecute();
+					boolean canExecute = cond.canExecute(ctx);
 					
 					if(!canExecute) {
 						new BotEmbedBuilder().setDescription(ctx.getLocalizedString(cond.errorMessage(), ctx.getAuthor().getAsMention())).withErrorColor().sendMessage(ctx.getChannel());
 						return true;
 					}
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				} catch (RuntimeException e) {
 					new BotEmbedBuilder().setDescription("An error occured while checking the conditions for the command execution.").withErrorColor().sendMessage(ctx.getChannel());
 					e.printStackTrace();
 				}

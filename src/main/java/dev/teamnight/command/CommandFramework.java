@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import dev.teamnight.command.annotations.SubModule;
+import dev.teamnight.command.standard.DefaultConditionRegistry;
 import dev.teamnight.command.standard.JDAListener;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -38,6 +39,8 @@ public class CommandFramework {
 	
 	private IArgumentProcessor argProcessor;
 	private IModuleAnalyzer moduleAnalyzer;
+	
+	private IConditionRegistry registry;
 	
 	private List<ICommandListener> listeners; //Implemented
 	private Map<String, IModule> topLevelModules;
@@ -75,6 +78,8 @@ public class CommandFramework {
 		
 		this.argProcessor = processor;
 		this.moduleAnalyzer = moduleAnalyzer;
+		
+		this.registry = new DefaultConditionRegistry();
 		
 		this.topLevelModules = new HashMap<String, IModule>();
 		
@@ -121,6 +126,13 @@ public class CommandFramework {
 	 */
 	public IArgumentProcessor getArgumentProcessor() {
 		return this.argProcessor;
+	}
+	
+	/**
+	 * @return the Condition Registry
+	 */
+	public IConditionRegistry getConditionRegistry() {
+		return registry;
 	}
 	
 	/**
